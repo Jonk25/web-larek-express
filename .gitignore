@@ -19,6 +19,9 @@ cookies.txt
 register.json
 login-bad.json
 bad.json
+new-product.json
+patch.json
+reg-bad.json
 
 # настройки редактора (не относятся к проекту)
 .vscode/
