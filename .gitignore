@@ -15,6 +15,10 @@ postman/
 # локальные тестовые заготовки
 order.json
 product.json
+cookies.txt
+register.json
+login-bad.json
+bad.json
 
 # настройки редактора (не относятся к проекту)
 .vscode/

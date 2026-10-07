@@ -23,3 +23,18 @@ export const validateOrderBody = celebrate({
     items: Joi.array().items(Joi.string()).min(1).required(),
   }),
 });
+
+export const validateRegisterBody = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(6).required(),
+  }),
+});
+
+export const validateLoginBody = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  }),
+});
