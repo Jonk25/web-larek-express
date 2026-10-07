@@ -4,6 +4,7 @@ import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
 import ms from 'ms';
 import { Error as MongooseError } from 'mongoose';
 import User from '../models/user';
+import { SessionRequest } from '../middlewares/auth';
 import BadRequestError from '../errors/bad-request-error';
 import UnauthorizedError from '../errors/unauthorized-error';
 import NotFoundError from '../errors/not-found-error';
@@ -72,18 +73,9 @@ export const login = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
-export const getCurrentUser = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return next(new UnauthorizedError('Необходима авторизация'));
-  }
-  let payload: JwtPayload;
-  try {
-    payload = jwt.verify(authHeader.replace('Bearer ', ''), SECRET) as JwtPayload;
-  } catch {
-    return next(new UnauthorizedError('Необходима авторизация'));
-  }
-  return User.findById(payload._id)
+export const getCurrentUser = (req: SessionRequest, res: Response, next: NextFunction) => {
+  const { _id } = req.user as JwtPayload;
+  return User.findById(_id)
     .orFail(() => new NotFoundError('Пользователь по заданному id отсутствует в базе'))
     .then((user) => res.send({
       user: { email: user.email, name: user.name },
