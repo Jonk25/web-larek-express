@@ -10,8 +10,11 @@ import UnauthorizedError from '../errors/unauthorized-error';
 import NotFoundError from '../errors/not-found-error';
 import ConflictError from '../errors/conflict-error';
 
-const { AUTH_ACCESS_TOKEN_EXPIRY = '1m', AUTH_REFRESH_TOKEN_EXPIRY = '7d' } = process.env;
-const SECRET = 'super-strong-secret';
+const {
+  AUTH_ACCESS_TOKEN_EXPIRY = '1m',
+  AUTH_REFRESH_TOKEN_EXPIRY = '7d',
+  AUTH_JWT_SECRET = 'super-strong-secret',
+} = process.env;
 
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
@@ -22,10 +25,10 @@ const REFRESH_COOKIE_OPTIONS = {
 };
 
 const generateTokens = (userId: string) => {
-  const accessToken = jwt.sign({ _id: userId }, SECRET, {
+  const accessToken = jwt.sign({ _id: userId }, AUTH_JWT_SECRET, {
     expiresIn: AUTH_ACCESS_TOKEN_EXPIRY as SignOptions['expiresIn'],
   });
-  const refreshToken = jwt.sign({ _id: userId }, SECRET, {
+  const refreshToken = jwt.sign({ _id: userId }, AUTH_JWT_SECRET, {
     expiresIn: AUTH_REFRESH_TOKEN_EXPIRY as SignOptions['expiresIn'],
   });
   return { accessToken, refreshToken };
@@ -94,7 +97,7 @@ export const refreshAccessToken = (req: Request, res: Response, next: NextFuncti
 
   let payload: JwtPayload;
   try {
-    payload = jwt.verify(refreshToken, SECRET) as JwtPayload;
+    payload = jwt.verify(refreshToken, AUTH_JWT_SECRET) as JwtPayload;
   } catch {
     return next(new UnauthorizedError('Не валидный токен'));
   }
@@ -115,7 +118,7 @@ export const logout = (req: Request, res: Response, next: NextFunction) => {
   const { refreshToken } = req.cookies;
   let payload: JwtPayload;
   try {
-    payload = jwt.verify(refreshToken, SECRET) as JwtPayload;
+    payload = jwt.verify(refreshToken, AUTH_JWT_SECRET) as JwtPayload;
   } catch {
     return next(new BadRequestError('Невалидный токен'));
   }
